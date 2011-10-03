@@ -1,0 +1,24 @@
+.gitignore
+bin/ukigumo-client.pl
+Changes
+lib/Ukigumo/Client.pm
+lib/Ukigumo/Client/Executor/Auto.pm
+lib/Ukigumo/Client/Executor/Callback.pm
+lib/Ukigumo/Client/Executor/Perl.pm
+lib/Ukigumo/Client/Executor/Prove.pm
+lib/Ukigumo/Client/Notify/Debug.pm
+lib/Ukigumo/Client/Notify/Ikachan.pm
+lib/Ukigumo/Client/Role/VC.pm
+lib/Ukigumo/Client/VC/Callback.pm
+lib/Ukigumo/Client/VC/Git.pm
+Makefile.PL
+MANIFEST			This list of files
+README
+README.pod
+t/00_compile.t
+t/basic.t
+xt/01_podspell.t
+xt/02_perlcritic.t
+xt/03_pod.t
+xt/10_workdir.t
+META.yml                                 Module meta-data (added by MakeMaker)

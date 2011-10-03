@@ -1,0 +1,31 @@
+--- #YAML:1.0
+name:               Ukigumo-Client
+version:            0.02
+abstract:           ~
+author:
+    - Tokuhiro Matsuno <tokuhirom+cpan@gmail.com>
+license:            unknown
+distribution_type:  module
+configure_requires:
+    ExtUtils::MakeMaker:  0
+build_requires:
+    ExtUtils::MakeMaker:  0
+requires:
+    Capture::Tiny:    0
+    Encode::Locale:   0
+    File::HomeDir:    0
+    JSON:             2
+    LWP::UserAgent:   6
+    Mouse:            0
+    perl:             5.010000
+    String::IRC:      0
+    Time::Piece:      1.15
+    Ukigumo::Common:  0.01
+no_index:
+    directory:
+        - t
+        - inc
+generated_by:       ExtUtils::MakeMaker version 6.56
+meta-spec:
+    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
+    version:  1.4
