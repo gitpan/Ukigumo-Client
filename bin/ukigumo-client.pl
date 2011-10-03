@@ -27,8 +27,8 @@ GetOptions(
     'server_url=s'      => \my $server_url,
     'project=s'         => \my $project,
 );
-$repo       or pod2usage();
-$server_url or pod2usage();
+$repo       or do { warn "Missing mandatory option: --repo\n\n"; pod2usage() };
+$server_url or do { warn "Missing mandatory option: --server_url\n\n"; pod2usage() };
 $branch='master' unless $branch;
 die "Bad branch name: $branch" unless $branch =~ /^[A-Za-z0-9._-]+$/; # guard from web
 $server_url =~ s!/$!! if defined $server_url;
@@ -45,7 +45,10 @@ my $app = Ukigumo::Client->new(
 );
 #$app->push_notifier( Ukigumo::Client::Notify::Debug->new());
 if ($ikachan_url) {
-    pod2usage() if !$ikachan_channel;
+    if (!$ikachan_channel) {
+        warn "You specified ikachan_url but ikachan_channel is not provided\n\n";
+        pod2usage();
+    }
     $app->push_notifier(
         Ukigumo::Client::Notify::Ikachan->new(
             url     => $ikachan_url,
@@ -64,8 +67,8 @@ ukigumo-client.pl - ukigumo client script
 
 =head1 SYNOPSIS
 
-    % ukigumo-client --repo=git://...
-    % ukigumo-client --repo=git://... --branch foo
+    % ukigumo-client.pl --repo=git://...
+    % ukigumo-client.pl --repo=git://... --branch foo
 
         --repo=s            URL for git repository
         --workdir=s         workdir directory for working(optional)
