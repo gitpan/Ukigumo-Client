@@ -21,4 +21,5 @@ xt/01_podspell.t
 xt/02_perlcritic.t
 xt/03_pod.t
 xt/10_workdir.t
+xt/11_run.t
 META.yml                                 Module meta-data (added by MakeMaker)
