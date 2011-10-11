@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Ukigumo-Client
-version:            0.05
+version:            0.06
 abstract:           ~
 author:
     - Tokuhiro Matsuno <tokuhirom+cpan@gmail.com>
@@ -19,6 +19,7 @@ requires:
     Mouse:            0
     perl:             5.010000
     String::IRC:      0
+    Test::Requires:   0
     Time::Piece:      1.15
     Ukigumo::Common:  0.01
     URI::Escape:      0
