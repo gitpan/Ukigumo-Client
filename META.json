@@ -1,0 +1,52 @@
+{
+   "abstract" : "Client library for Ukigumo",
+   "author" : [
+      "Tokuhiro Matsuno <tokuhirom+cpan@gmail.com>"
+   ],
+   "dynamic_config" : 1,
+   "generated_by" : "ExtUtils::MakeMaker version 6.59, CPAN::Meta::Converter version 2.112150",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Ukigumo-Client",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "inc"
+      ]
+   },
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : 0
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : 0
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Capture::Tiny" : 0,
+            "Encode::Locale" : 0,
+            "File::HomeDir" : 0,
+            "JSON" : "2",
+            "LWP::UserAgent" : "6",
+            "Mouse" : 0,
+            "String::IRC" : 0,
+            "Test::Requires" : 0,
+            "Time::Piece" : "1.15",
+            "URI::Escape" : 0,
+            "Ukigumo::Common" : "0.01",
+            "perl" : "5.010000"
+         }
+      }
+   },
+   "release_status" : "stable",
+   "version" : "0.08"
+}

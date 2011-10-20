@@ -1,33 +1,33 @@
---- #YAML:1.0
-name:               Ukigumo-Client
-version:            0.07
-abstract:           Client library for Ukigumo
+---
+abstract: 'Client library for Ukigumo'
 author:
-    - Tokuhiro Matsuno <tokuhirom+cpan@gmail.com>
-license:            perl
-distribution_type:  module
-configure_requires:
-    ExtUtils::MakeMaker:  0
+  - 'Tokuhiro Matsuno <tokuhirom+cpan@gmail.com>'
 build_requires:
-    ExtUtils::MakeMaker:  0
-requires:
-    Capture::Tiny:    0
-    Encode::Locale:   0
-    File::HomeDir:    0
-    JSON:             2
-    LWP::UserAgent:   6
-    Mouse:            0
-    perl:             5.010000
-    String::IRC:      0
-    Test::Requires:   0
-    Time::Piece:      1.15
-    Ukigumo::Common:  0.01
-    URI::Escape:      0
-no_index:
-    directory:
-        - t
-        - inc
-generated_by:       ExtUtils::MakeMaker version 6.57_05
+  ExtUtils::MakeMaker: 0
+configure_requires:
+  ExtUtils::MakeMaker: 0
+dynamic_config: 1
+generated_by: 'ExtUtils::MakeMaker version 6.59, CPAN::Meta::Converter version 2.112150'
+license: perl
 meta-spec:
-    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
-    version:  1.4
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Ukigumo-Client
+no_index:
+  directory:
+    - t
+    - inc
+requires:
+  Capture::Tiny: 0
+  Encode::Locale: 0
+  File::HomeDir: 0
+  JSON: 2
+  LWP::UserAgent: 6
+  Mouse: 0
+  String::IRC: 0
+  Test::Requires: 0
+  Time::Piece: 1.15
+  URI::Escape: 0
+  Ukigumo::Common: 0.01
+  perl: 5.010000
+version: 0.08

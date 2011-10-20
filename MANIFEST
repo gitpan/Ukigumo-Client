@@ -25,4 +25,5 @@ xt/05_cpan_meta.t
 xt/06_meta_author.t
 xt/10_workdir.t
 xt/11_run.t
-META.yml                                 Module meta-data (added by MakeMaker)
+META.yml                                 Module YAML meta-data (added by MakeMaker)
+META.json                                Module JSON meta-data (added by MakeMaker)
