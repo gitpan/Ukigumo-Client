@@ -10,6 +10,8 @@ with 'Ukigumo::Client::Role::VC';
 
 has log_limit => ( is => 'ro', isa => 'Int', default => 50 );
 
+sub default_branch { 'master' }
+
 sub get_revision {
 	my $self = shift;
 	$self->{revision} ||= ( substr( `git rev-parse HEAD`, 0, 10 ) || 'Unknown' );
@@ -27,6 +29,7 @@ sub update {
     $c->tee("git submodule update")==0 or die "git fail";
     $c->tee("git clean -dxf")==0 or die "git fail";
     $c->tee("git status")==0 or die "git fail";
+    delete $self->{revision};
 }
 
 sub get_log {

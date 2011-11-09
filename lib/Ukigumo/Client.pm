@@ -2,7 +2,7 @@ package Ukigumo::Client;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.08';
+our $VERSION = '0.10';
 
 use Carp ();
 use Capture::Tiny;
@@ -159,13 +159,12 @@ sub send_to_server {
 sub tee {
     my ($self, $command) = @_;
     $self->log("command: $command");
-    my ($out) = Capture::Tiny::capture_merged {
+    my ($out) = Capture::Tiny::tee_merged {
         ( $EUID, $EGID ) = ( $UID, $GID );
         system $command
     };
-    Encode::decode("console_out", $out);
+    $out = Encode::encode("console_in", Encode::decode("console_out", $out));
 
-    print $out;
     print {$self->logfh} $out;
     return $?;
 }
