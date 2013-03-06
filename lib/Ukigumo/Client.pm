@@ -2,7 +2,7 @@ package Ukigumo::Client;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 use Carp ();
 use Capture::Tiny;
@@ -111,6 +111,11 @@ sub run {
         my $orig_revision = $self->vc->get_revision();
         $self->vc->update($self, $workdir);
         my $current_revision = $self->vc->get_revision();
+
+        if ($self->vc->skip_if_unmodified && $orig_revision eq $current_revision) {
+            $self->log('skip testing');
+            return;
+        }
         my $vc_log = $self->vc->get_log($orig_revision, $current_revision);
 		$self->log('run executor : ' . ref $self->executor);
         my $status = $self->executor->run($self);
@@ -192,27 +197,27 @@ Ukigumo::Client - Client library for Ukigumo
 =head1 SYNOPSIS
 
     use Ukigumo::Client;
-	use Ukigumo::Client::VC::Git;
-	use Ukigumo::Client::Executor::Auto;
-	use Ukigumo::Client::Notify::Debug;
-	use Ukigumo::Client::Notify::Ikachan;
+    use Ukigumo::Client::VC::Git;
+    use Ukigumo::Client::Executor::Auto;
+    use Ukigumo::Client::Notify::Debug;
+    use Ukigumo::Client::Notify::Ikachan;
 
-	my $app = Ukigumo::Client->new(
-		vc   => Ukigumo::Client::VC::Git->new(
-			branch     => $branch,
-			repository => $repo,
-		),
-		executor   => Ukigumo::Client::Executor::Perl->new(),
-		server_url => $server_url,
-		project    => $project,
-	);
-	$app->push_notifier(
-		Ukigumo::Client::Notify::Ikachan->new(
-			url     => $ikachan_url,
-			channel => $ikachan_channel,
-		)
-	);
-	$app->run();
+    my $app = Ukigumo::Client->new(
+        vc   => Ukigumo::Client::VC::Git->new(
+            branch     => $branch,
+            repository => $repo,
+        ),
+        executor   => Ukigumo::Client::Executor::Perl->new(),
+        server_url => $server_url,
+        project    => $project,
+    );
+    $app->push_notifier(
+        Ukigumo::Client::Notify::Ikachan->new(
+            url     => $ikachan_url,
+            channel => $ikachan_channel,
+        )
+    );
+    $app->run();
 
 =head1 DESCRIPTION
 

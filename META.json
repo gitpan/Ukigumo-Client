@@ -4,7 +4,7 @@
       "Tokuhiro Matsuno <tokuhirom+cpan@gmail.com>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "ExtUtils::MakeMaker version 6.62, CPAN::Meta::Converter version 2.112621",
+   "generated_by" : "ExtUtils::MakeMaker version 6.64, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "perl_5"
    ],
@@ -22,31 +22,31 @@
    "prereqs" : {
       "build" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : 0
+            "ExtUtils::MakeMaker" : "0"
          }
       },
       "configure" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : 0
+            "ExtUtils::MakeMaker" : "0"
          }
       },
       "runtime" : {
          "requires" : {
-            "Capture::Tiny" : 0,
-            "Encode::Locale" : 0,
-            "File::HomeDir" : 0,
+            "Capture::Tiny" : "0",
+            "Encode::Locale" : "0",
+            "File::HomeDir" : "0",
             "JSON" : "2",
             "LWP::UserAgent" : "6",
-            "Mouse" : 0,
-            "String::IRC" : 0,
-            "Test::Requires" : 0,
+            "Mouse" : "0",
+            "String::IRC" : "0",
+            "Test::Requires" : "0",
             "Time::Piece" : "1.15",
-            "URI::Escape" : 0,
+            "URI::Escape" : "0",
             "Ukigumo::Common" : "0.03",
             "perl" : "5.010000"
          }
       }
    },
    "release_status" : "stable",
-   "version" : "0.12"
+   "version" : "0.13"
 }
