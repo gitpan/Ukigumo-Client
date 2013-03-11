@@ -1,10 +1,10 @@
 {
    "abstract" : "Client library for Ukigumo",
    "author" : [
-      "Tokuhiro Matsuno <tokuhirom+cpan@gmail.com>"
+      "Tokuhiro Matsuno E<lt>tokuhirom AAJKLFJEF@ GMAIL COME<gt>"
    ],
-   "dynamic_config" : 1,
-   "generated_by" : "ExtUtils::MakeMaker version 6.64, CPAN::Meta::Converter version 2.120921",
+   "dynamic_config" : 0,
+   "generated_by" : "Module::Build version 0.4003, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "perl_5"
    ],
@@ -15,19 +15,21 @@
    "name" : "Ukigumo-Client",
    "no_index" : {
       "directory" : [
-         "t",
          "inc"
       ]
    },
    "prereqs" : {
       "build" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : "0"
+            "Module::Build::Pluggable::CPANfile" : "0.02",
+            "Module::Build::Pluggable::GithubMeta" : "0"
          }
       },
       "configure" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : "0"
+            "Module::Build" : "0.4",
+            "Module::Build::Pluggable::CPANfile" : "0.02",
+            "Module::Build::Pluggable::GithubMeta" : "0"
          }
       },
       "runtime" : {
@@ -44,10 +46,73 @@
             "URI::Escape" : "0",
             "Ukigumo::Common" : "0.03",
             "YAML::Tiny" : "0",
-            "perl" : "5.010000"
+            "perl" : "5.008005"
          }
       }
    },
+   "provides" : {
+      "Ukigumo::Client" : {
+         "file" : "lib/Ukigumo/Client.pm",
+         "version" : "0.15"
+      },
+      "Ukigumo::Client::Executor::Auto" : {
+         "file" : "lib/Ukigumo/Client/Executor/Auto.pm",
+         "version" : 0
+      },
+      "Ukigumo::Client::Executor::Callback" : {
+         "file" : "lib/Ukigumo/Client/Executor/Callback.pm",
+         "version" : 0
+      },
+      "Ukigumo::Client::Executor::Command" : {
+         "file" : "lib/Ukigumo/Client/Executor/Command.pm",
+         "version" : 0
+      },
+      "Ukigumo::Client::Executor::Perl" : {
+         "file" : "lib/Ukigumo/Client/Executor/Perl.pm",
+         "version" : 0
+      },
+      "Ukigumo::Client::Executor::Prove" : {
+         "file" : "lib/Ukigumo/Client/Executor/Prove.pm",
+         "version" : 0
+      },
+      "Ukigumo::Client::Notify::Callback" : {
+         "file" : "lib/Ukigumo/Client/Notify/Callback.pm",
+         "version" : 0
+      },
+      "Ukigumo::Client::Notify::Debug" : {
+         "file" : "lib/Ukigumo/Client/Notify/Debug.pm",
+         "version" : 0
+      },
+      "Ukigumo::Client::Notify::Ikachan" : {
+         "file" : "lib/Ukigumo/Client/Notify/Ikachan.pm",
+         "version" : 0
+      },
+      "Ukigumo::Client::Role::VC" : {
+         "file" : "lib/Ukigumo/Client/Role/VC.pm",
+         "version" : 0
+      },
+      "Ukigumo::Client::VC::Callback" : {
+         "file" : "lib/Ukigumo/Client/VC/Callback.pm",
+         "version" : 0
+      },
+      "Ukigumo::Client::VC::Git" : {
+         "file" : "lib/Ukigumo/Client/VC/Git.pm",
+         "version" : 0
+      },
+      "Ukigumo::Client::VC::SVN" : {
+         "file" : "lib/Ukigumo/Client/VC/SVN.pm",
+         "version" : 0
+      }
+   },
    "release_status" : "stable",
-   "version" : "0.14"
+   "resources" : {
+      "homepage" : "https://github.com/ukigumo/Ukigumo-Client/tree",
+      "license" : [
+         "http://dev.perl.org/licenses/"
+      ],
+      "repository" : {
+         "url" : "git://github.com/ukigumo/Ukigumo-Client.git"
+      }
+   },
+   "version" : "0.15"
 }
