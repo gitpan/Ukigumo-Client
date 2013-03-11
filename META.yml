@@ -29,5 +29,6 @@ requires:
   Time::Piece: 1.15
   URI::Escape: 0
   Ukigumo::Common: 0.03
+  YAML::Tiny: 0
   perl: 5.010000
-version: 0.13
+version: 0.14
