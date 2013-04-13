@@ -1,16 +1,15 @@
 ---
 abstract: 'Client library for Ukigumo'
 author:
-  - 'Tokuhiro Matsuno E<lt>tokuhirom AAJKLFJEF@ GMAIL COME<gt>'
-build_requires:
-  Module::Build::Pluggable::CPANfile: 0.02
-  Module::Build::Pluggable::GithubMeta: 0
+  - 'Tokuhiro Matsuno <tokuhirom AAJKLFJEF@ GMAIL COM>'
+build_requires: {}
 configure_requires:
+  CPAN::Meta: 0
+  CPAN::Meta::Prereqs: 0
   Module::Build: 0.4
-  Module::Build::Pluggable::CPANfile: 0.02
   Module::Build::Pluggable::GithubMeta: 0
 dynamic_config: 0
-generated_by: 'Module::Build version 0.4003, CPAN::Meta::Converter version 2.120921'
+generated_by: 'Minilla/v0.0.53, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -18,11 +17,17 @@ meta-spec:
 name: Ukigumo-Client
 no_index:
   directory:
+    - t
+    - xt
     - inc
+    - share
+    - eg
+    - examples
+    - author
 provides:
   Ukigumo::Client:
     file: lib/Ukigumo/Client.pm
-    version: 0.15
+    version: 0.16
   Ukigumo::Client::Executor::Auto:
     file: lib/Ukigumo/Client/Executor/Auto.pm
     version: 0
@@ -43,6 +48,9 @@ provides:
     version: 0
   Ukigumo::Client::Notify::Debug:
     file: lib/Ukigumo/Client/Notify/Debug.pm
+    version: 0
+  Ukigumo::Client::Notify::Growl:
+    file: lib/Ukigumo/Client/Notify/Growl.pm
     version: 0
   Ukigumo::Client::Notify::Ikachan:
     file: lib/Ukigumo/Client/Notify/Ikachan.pm
@@ -72,9 +80,14 @@ requires:
   URI::Escape: 0
   Ukigumo::Common: 0.03
   YAML::Tiny: 0
-  perl: 5.008005
+  perl: 5.008001
 resources:
-  homepage: https://github.com/ukigumo/Ukigumo-Client/tree
-  license: http://dev.perl.org/licenses/
+  bugtracker: https://github.com/ukigumo/Ukigumo-Client/issues
+  homepage: https://github.com/ukigumo/Ukigumo-Client
   repository: git://github.com/ukigumo/Ukigumo-Client.git
-version: 0.15
+version: 0.16
+x_contributors:
+  - 'mattn <mattn.jp@gmail.com>'
+  - 'xaicron <xaicron@gmail.com>'
+  - 'tokuhirom <tokuhirom@gmail.com>'
+  - 'Masayuki Matsuki <y.songmu@gmail.com>'
