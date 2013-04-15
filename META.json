@@ -61,7 +61,7 @@
    "provides" : {
       "Ukigumo::Client" : {
          "file" : "lib/Ukigumo/Client.pm",
-         "version" : "0.16"
+         "version" : "0.17"
       },
       "Ukigumo::Client::Executor::Auto" : {
          "file" : "lib/Ukigumo/Client/Executor/Auto.pm"
@@ -114,7 +114,7 @@
          "web" : "https://github.com/ukigumo/Ukigumo-Client"
       }
    },
-   "version" : "0.16",
+   "version" : "0.17",
    "x_contributors" : [
       "mattn <mattn.jp@gmail.com>",
       "xaicron <xaicron@gmail.com>",

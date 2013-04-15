@@ -1,4 +1,3 @@
-.gitignore
 Build.PL
 Changes
 LICENSE
@@ -28,8 +27,5 @@ xt/02_perlcritic.t
 xt/10_workdir.t
 xt/11_run.t
 xt/12_svn.t
-Build.PL
-LICENSE
-META.json
 META.yml
 MANIFEST
