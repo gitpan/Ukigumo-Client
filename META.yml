@@ -2,14 +2,16 @@
 abstract: 'Client library for Ukigumo'
 author:
   - 'Tokuhiro Matsuno <tokuhirom AAJKLFJEF@ GMAIL COM>'
-build_requires: {}
+build_requires:
+  Test::More: 0.98
+  Test::Requires: 0
 configure_requires:
   CPAN::Meta: 0
   CPAN::Meta::Prereqs: 0
-  Module::Build: 0.4
-  Module::Build::Pluggable::GithubMeta: 0
+  Module::Build: 0.40
+  perl: 5.008001
 dynamic_config: 0
-generated_by: 'Minilla/v0.0.53, CPAN::Meta::Converter version 2.120921'
+generated_by: 'Minilla/v0.5.6, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -27,7 +29,7 @@ no_index:
 provides:
   Ukigumo::Client:
     file: lib/Ukigumo/Client.pm
-    version: 0.17
+    version: 0.18
   Ukigumo::Client::Executor::Auto:
     file: lib/Ukigumo/Client/Executor/Auto.pm
     version: 0
@@ -67,15 +69,17 @@ provides:
   Ukigumo::Client::VC::SVN:
     file: lib/Ukigumo/Client/VC/SVN.pm
     version: 0
+recommends:
+  Growl::Any: 0
 requires:
   Capture::Tiny: 0
   Encode::Locale: 0
   File::HomeDir: 0
+  HTTP::Request::Common: 0
   JSON: 2
   LWP::UserAgent: 6
   Mouse: 0
   String::IRC: 0
-  Test::Requires: 0
   Time::Piece: 1.15
   URI::Escape: 0
   Ukigumo::Common: 0.03
@@ -85,9 +89,10 @@ resources:
   bugtracker: https://github.com/ukigumo/Ukigumo-Client/issues
   homepage: https://github.com/ukigumo/Ukigumo-Client
   repository: git://github.com/ukigumo/Ukigumo-Client.git
-version: 0.17
+version: 0.18
 x_contributors:
   - 'mattn <mattn.jp@gmail.com>'
   - 'xaicron <xaicron@gmail.com>'
   - 'tokuhirom <tokuhirom@gmail.com>'
+  - 'Neil Bowers <neil@bowers.com>'
   - 'Masayuki Matsuki <y.songmu@gmail.com>'
