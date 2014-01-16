@@ -11,7 +11,7 @@ configure_requires:
   Module::Build: 0.40
   perl: 5.008001
 dynamic_config: 0
-generated_by: 'Minilla/v0.5.6, CPAN::Meta::Converter version 2.120921'
+generated_by: 'Minilla/v0.11.0, CPAN::Meta::Converter version 2.133380'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -26,49 +26,37 @@ no_index:
     - eg
     - examples
     - author
+    - builder
 provides:
   Ukigumo::Client:
     file: lib/Ukigumo/Client.pm
-    version: 0.18
+    version: 0.19
   Ukigumo::Client::Executor::Auto:
     file: lib/Ukigumo/Client/Executor/Auto.pm
-    version: 0
   Ukigumo::Client::Executor::Callback:
     file: lib/Ukigumo/Client/Executor/Callback.pm
-    version: 0
   Ukigumo::Client::Executor::Command:
     file: lib/Ukigumo/Client/Executor/Command.pm
-    version: 0
   Ukigumo::Client::Executor::Perl:
     file: lib/Ukigumo/Client/Executor/Perl.pm
-    version: 0
   Ukigumo::Client::Executor::Prove:
     file: lib/Ukigumo/Client/Executor/Prove.pm
-    version: 0
   Ukigumo::Client::Notify::Callback:
     file: lib/Ukigumo/Client/Notify/Callback.pm
-    version: 0
   Ukigumo::Client::Notify::Debug:
     file: lib/Ukigumo/Client/Notify/Debug.pm
-    version: 0
   Ukigumo::Client::Notify::Growl:
     file: lib/Ukigumo/Client/Notify/Growl.pm
-    version: 0
   Ukigumo::Client::Notify::Ikachan:
     file: lib/Ukigumo/Client/Notify/Ikachan.pm
-    version: 0
   Ukigumo::Client::Role::VC:
     file: lib/Ukigumo/Client/Role/VC.pm
-    version: 0
   Ukigumo::Client::VC::Callback:
     file: lib/Ukigumo/Client/VC/Callback.pm
-    version: 0
   Ukigumo::Client::VC::Git:
     file: lib/Ukigumo/Client/VC/Git.pm
-    version: 0
   Ukigumo::Client::VC::SVN:
     file: lib/Ukigumo/Client/VC/SVN.pm
-    version: 0
 recommends:
   Growl::Any: 0
 requires:
@@ -89,10 +77,10 @@ resources:
   bugtracker: https://github.com/ukigumo/Ukigumo-Client/issues
   homepage: https://github.com/ukigumo/Ukigumo-Client
   repository: git://github.com/ukigumo/Ukigumo-Client.git
-version: 0.18
+version: 0.19
 x_contributors:
   - 'mattn <mattn.jp@gmail.com>'
   - 'xaicron <xaicron@gmail.com>'
-  - 'tokuhirom <tokuhirom@gmail.com>'
   - 'Neil Bowers <neil@bowers.com>'
   - 'Masayuki Matsuki <y.songmu@gmail.com>'
+  - 'Tokuhiro Matsuno <tokuhirom@gmail.com>'
