@@ -2,7 +2,7 @@ package Ukigumo::Client;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.19';
+our $VERSION = '0.20';
 
 use Carp ();
 use Capture::Tiny;
@@ -155,6 +155,8 @@ sub _load_notifications {
     my ($self, $conf) = @_;
     for my $type (keys %{$conf->{notifications}}) {
         if ($type eq 'ikachan') {
+            require Ukigumo::Client::Notify::Ikachan;
+
             my $c = $conf->{notifications}->{$type};
                $c = [$c] unless ref $c eq 'ARRAY';
 
