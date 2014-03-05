@@ -21,6 +21,7 @@ lib/Ukigumo/Client/VC/Git.pm
 lib/Ukigumo/Client/VC/SVN.pm
 t/00_compile.t
 t/09_skip_if_unmodified.t
+t/10_die_if_broken_yml.t
 t/basic.t
 t/command.t
 xt/02_perlcritic.t

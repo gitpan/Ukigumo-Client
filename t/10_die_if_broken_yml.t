@@ -4,6 +4,7 @@ use utf8;
 use Test::More;
 use Test::Requires 'LWP::Protocol::PSGI';
 use File::Temp;
+use File::pushd;
 
 use Ukigumo::Client;
 use Ukigumo::Client::VC::Callback;
@@ -25,10 +26,16 @@ LWP::Protocol::PSGI->register(sub{
 	]];
 });
 
-my $tempdir = File::Temp::tempdir(CLEANUP => 1);
+my $pushd = pushd(File::Temp::tempdir(CLEANUP => 1));
+
 my $client = Ukigumo::Client->new(
     vc => Ukigumo::Client::VC::Callback->new(
-        update_cb  => sub { },
+        update_cb  => sub {
+            open my $fh, '>', '.ukigumo.yml'
+                or die;
+            print {$fh} "--\n- x\n   - Y\nTHIS IS INVALID YAML";
+            close $fh;
+        },
         branch     => 'master',
         repository => 'git:...',
     ),
@@ -38,21 +45,10 @@ my $client = Ukigumo::Client->new(
             return STATUS_NA;
         }
     ),
-    workdir => $tempdir,
     quiet => 1,
 );
-
-$client->push_notifier(
-    Ukigumo::Client::Notify::Callback->new(
-        send_cb => sub {
-            my ($c, $status, $last_status, $report_url) = @_;
-            is $status,     STATUS_NA;
-            ok !$last_status;
-            is $report_url, $REPORT_URL;
-        }
-    ),
-);
-
-$client->run();
+eval { $client->run() };
+like $@, qr/.ukigumo.yml/;
+note $@;
 
 done_testing;

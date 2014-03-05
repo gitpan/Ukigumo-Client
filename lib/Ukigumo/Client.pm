@@ -2,7 +2,7 @@ package Ukigumo::Client;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.20';
+our $VERSION = '0.21';
 
 use Carp ();
 use Capture::Tiny;
@@ -20,6 +20,8 @@ use File::Temp;
 use File::HomeDir;
 use URI::Escape qw(uri_escape);
 use YAML::Tiny;
+use Cwd;
+use Scope::Guard;
 
 use Ukigumo::Constants;
 use Ukigumo::Client::Executor::Command;
@@ -99,6 +101,12 @@ sub push_notifier {
 sub run {
     my $self = shift;
 
+    # Back to original directory, after work.
+    my $orig_cwd = Cwd::getcwd();
+    my $guard = Scope::Guard->new(
+        sub { chdir $orig_cwd }
+    );
+
     my $workdir = File::Spec->catdir( $self->workdir, uri_escape($self->project), uri_escape($self->branch) );
 
     $self->log("ukigumo-client $VERSION");
@@ -173,9 +181,16 @@ sub _load_notifications {
 sub load_config {
     my $self = shift;
 
-    if ( -e '.ukigumo.yml' ) {
+    if ( -f '.ukigumo.yml' ) {
         my $y = eval { YAML::Tiny->read('.ukigumo.yml') };
-        $self->log("Bad .ukigumo.yml: $@") if $@;
+        if (my $e = $@) {
+            $self->log("YAML syntax error in .ukigumo.yml: $e");
+            die ".ukigumo.yml: $e\n";
+        }
+        unless (defined $y) {
+            $self->log("ukigumo.yml does not contain anything");
+            die ".ukigumo.yml: does not contain anything\n";
+        }
         $y ? $y->[0] : undef;
     }
     else {

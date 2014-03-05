@@ -3,13 +3,14 @@ abstract: 'Client library for Ukigumo'
 author:
   - 'Tokuhiro Matsuno <tokuhirom AAJKLFJEF@ GMAIL COM>'
 build_requires:
+  File::Temp: 0
+  File::pushd: 0
   Test::More: 0.98
   Test::Requires: 0
 configure_requires:
   CPAN::Meta: 0
   CPAN::Meta::Prereqs: 0
-  Module::Build: 0.40
-  perl: 5.008001
+  Module::Build: 0.38
 dynamic_config: 0
 generated_by: 'Minilla/v0.11.0, CPAN::Meta::Converter version 2.133380'
 license: perl
@@ -30,7 +31,7 @@ no_index:
 provides:
   Ukigumo::Client:
     file: lib/Ukigumo/Client.pm
-    version: 0.20
+    version: 0.21
   Ukigumo::Client::Executor::Auto:
     file: lib/Ukigumo/Client/Executor/Auto.pm
   Ukigumo::Client::Executor::Callback:
@@ -67,6 +68,7 @@ requires:
   JSON: 2
   LWP::UserAgent: 6
   Mouse: 0
+  Scope::Guard: 0
   String::IRC: 0
   Time::Piece: 1.15
   URI::Escape: 0
@@ -77,7 +79,7 @@ resources:
   bugtracker: https://github.com/ukigumo/Ukigumo-Client/issues
   homepage: https://github.com/ukigumo/Ukigumo-Client
   repository: git://github.com/ukigumo/Ukigumo-Client.git
-version: 0.20
+version: 0.21
 x_contributors:
   - 'mattn <mattn.jp@gmail.com>'
   - 'xaicron <xaicron@gmail.com>'
