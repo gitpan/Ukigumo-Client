@@ -2,7 +2,7 @@ package Ukigumo::Client;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.21';
+our $VERSION = '0.22';
 
 use Carp ();
 use Capture::Tiny;
@@ -92,6 +92,23 @@ has 'notifiers' => (
     is       => 'rw',
     default  => sub { +[ ] },
 );
+
+has 'compare_url' => (
+    is      => 'ro',
+    isa     => 'Str',
+    default => '',
+);
+has 'repository_owner' => (
+    is      => 'ro',
+    isa     => 'Str',
+    default => '',
+);
+has 'repository_name' => (
+    is      => 'ro',
+    isa     => 'Str',
+    default => '',
+);
+
 sub push_notifier {
     my $self = shift;
     push @{$self->notifiers}, @_;
@@ -130,6 +147,15 @@ sub run {
 
         my $conf = $self->load_config();
 
+        $self->_load_notifications($conf);
+
+        my $repository_owner = $self->repository_owner;
+        my $repository_name  = $self->repository_name;
+
+        for my $notify (grep { ref $_ eq NOTIFIER_GITHUBSTATUSES } @{$self->notifiers}) {
+            $notify->send($self, '', STATUS_PENDING, '', $current_revision, $repository_owner, $repository_name);
+        }
+
         $self->run_commands($conf, 'before_install');
 
         $self->install($conf);
@@ -150,9 +176,9 @@ sub run {
         );
 
         $self->log("sending notification: @{[ $self->branch ]}, $status");
-        $self->_load_notifications($conf);
+
         for my $notify (@{$self->notifiers}) {
-            $notify->send($self, $status, $last_status, $report_url);
+            $notify->send($self, $status, $last_status, $report_url, $current_revision, $repository_owner, $repository_name);
         }
     }
 
@@ -163,18 +189,25 @@ sub _load_notifications {
     my ($self, $conf) = @_;
     for my $type (keys %{$conf->{notifications}}) {
         if ($type eq 'ikachan') {
-            require Ukigumo::Client::Notify::Ikachan;
-
-            my $c = $conf->{notifications}->{$type};
-               $c = [$c] unless ref $c eq 'ARRAY';
-
-            for my $args (@$c) {
-                my $notifier = Ukigumo::Client::Notify::Ikachan->new($args);
-                push @{$self->{notifiers}}, $notifier;
-            }
+            $self->_load_notify_modules($conf, $type, NOTIFIER_IKACHAN);
+        }
+        if ($type eq 'github_statuses') {
+            $self->_load_notify_modules($conf, $type, NOTIFIER_GITHUBSTATUSES);
         } else {
             die "Unknown notification type: $type";
         }
+    }
+}
+
+sub _load_notify_modules {
+    my ($self, $conf, $type, $module_name) = @_;
+
+    my $c = $conf->{notifications}->{$type};
+       $c = [$c] unless ref $c eq 'ARRAY';
+
+    for my $args (@$c) {
+        my $notifier = $module_name->new($args);
+        push @{$self->{notifiers}}, $notifier;
     }
 }
 
@@ -240,7 +273,7 @@ sub send_to_server {
 
     my $server_url = $self->server_url;
        $server_url =~ s!/$!!g;
-	my $req = 
+	my $req =
 		POST $server_url . '/api/v1/report/add',
 		Content_Type => 'form-data',
 		Content => [
@@ -251,6 +284,7 @@ sub send_to_server {
 			status   => $status,
             vc_log   => $vc_log,
 			body     => [$self->logfh->filename],
+            compare_url => $self->compare_url,
 		];
 	my $res = $ua->request($req);
 	$res->is_success or die "Cannot send a report to @{[ $self->server_url ]}/api/v1/report/add:\n" . $res->as_string;
@@ -362,6 +396,10 @@ This is a test executor object. It's normally Ukigumo::Client::Executor::*. But 
 =item C<notifiers>
 
 This is a arrayref of notifier object. It's normally Ukigumo::Client::Notify::*. But you can write your own class.
+
+=item C<compare_url>
+
+URL to compare differences between range of commitments.
 
 =back
 

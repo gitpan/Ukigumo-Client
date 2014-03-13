@@ -13,6 +13,7 @@ lib/Ukigumo/Client/Executor/Perl.pm
 lib/Ukigumo/Client/Executor/Prove.pm
 lib/Ukigumo/Client/Notify/Callback.pm
 lib/Ukigumo/Client/Notify/Debug.pm
+lib/Ukigumo/Client/Notify/GitHubStatuses.pm
 lib/Ukigumo/Client/Notify/Growl.pm
 lib/Ukigumo/Client/Notify/Ikachan.pm
 lib/Ukigumo/Client/Role/VC.pm
