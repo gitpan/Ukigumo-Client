@@ -2,7 +2,7 @@ package Ukigumo::Client;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.22';
+our $VERSION = '0.23';
 
 use Carp ();
 use Capture::Tiny;
@@ -202,6 +202,8 @@ sub _load_notifications {
 sub _load_notify_modules {
     my ($self, $conf, $type, $module_name) = @_;
 
+    require $self->_convert_module_name_to_module_path($module_name);
+
     my $c = $conf->{notifications}->{$type};
        $c = [$c] unless ref $c eq 'ARRAY';
 
@@ -209,6 +211,13 @@ sub _load_notify_modules {
         my $notifier = $module_name->new($args);
         push @{$self->{notifiers}}, $notifier;
     }
+}
+
+sub _convert_module_name_to_module_path {
+    my ($self, $module_name) = @_;
+
+    $module_name =~ s!::!/!g;
+    return $module_name . '.pm';
 }
 
 sub load_config {

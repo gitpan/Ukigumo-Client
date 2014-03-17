@@ -4,7 +4,7 @@
       "Tokuhiro Matsuno <tokuhirom AAJKLFJEF@ GMAIL COM>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v0.11.0",
+   "generated_by" : "Minilla/v0.12.0",
    "license" : [
       "perl_5"
    ],
@@ -75,7 +75,7 @@
    "provides" : {
       "Ukigumo::Client" : {
          "file" : "lib/Ukigumo/Client.pm",
-         "version" : "0.22"
+         "version" : "0.23"
       },
       "Ukigumo::Client::Executor::Auto" : {
          "file" : "lib/Ukigumo/Client/Executor/Auto.pm"
@@ -131,7 +131,7 @@
          "web" : "https://github.com/ukigumo/Ukigumo-Client"
       }
    },
-   "version" : "0.22",
+   "version" : "0.23",
    "x_contributors" : [
       "mattn <mattn.jp@gmail.com>",
       "xaicron <xaicron@gmail.com>",
