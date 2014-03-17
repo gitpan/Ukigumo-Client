@@ -2,7 +2,7 @@ package Ukigumo::Client;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.23';
+our $VERSION = '0.24';
 
 use Carp ();
 use Capture::Tiny;
@@ -191,7 +191,7 @@ sub _load_notifications {
         if ($type eq 'ikachan') {
             $self->_load_notify_modules($conf, $type, NOTIFIER_IKACHAN);
         }
-        if ($type eq 'github_statuses') {
+        elsif ($type eq 'github_statuses') {
             $self->_load_notify_modules($conf, $type, NOTIFIER_GITHUBSTATUSES);
         } else {
             die "Unknown notification type: $type";
