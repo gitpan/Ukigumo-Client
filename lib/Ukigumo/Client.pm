@@ -2,7 +2,7 @@ package Ukigumo::Client;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.26';
+our $VERSION = '0.27';
 
 use Carp ();
 use Capture::Tiny;
@@ -18,7 +18,6 @@ use HTTP::Request::Common qw(POST);
 use JSON qw(decode_json);
 use File::Temp;
 use File::HomeDir;
-use URI::Escape qw(uri_escape);
 use YAML::Tiny;
 use Cwd;
 use Scope::Guard;
@@ -119,6 +118,18 @@ has 'current_revision' => (
     default => '',
 );
 
+has 'elapsed_time_sec' => (
+    is      => 'rw',
+    isa     => 'Int',
+    default => 0,
+);
+
+sub normalize_path {
+    my $path = shift;
+    $path =~ s/[^a-zA-Z0-9-_]/_/g;
+    $path;
+}
+
 sub push_notifier {
     my $self = shift;
     push @{$self->notifiers}, @_;
@@ -133,7 +144,7 @@ sub run {
         sub { chdir $orig_cwd }
     );
 
-    my $workdir = File::Spec->catdir( $self->workdir, uri_escape($self->project), uri_escape($self->branch) );
+    my $workdir = File::Spec->catdir( $self->workdir, normalize_path($self->project), normalize_path($self->branch) );
 
     $self->log("ukigumo-client $VERSION");
     $self->log("start testing : " . $self->vc->description());
@@ -143,7 +154,7 @@ sub run {
         mkpath($workdir);
         chdir($workdir) or die "Cannot chdir(@{[ $workdir ]}): $!";
 
-		$self->log('run vc : ' . ref $self->vc);
+        $self->log('run vc : ' . ref $self->vc);
         my $orig_revision = $self->vc->get_revision();
         $self->vc->update($self, $workdir);
         $self->current_revision($self->vc->get_revision());
@@ -174,10 +185,10 @@ sub run {
 
         my $executor = defined($conf->{script}) ? Ukigumo::Client::Executor::Command->new(command => $conf->{script}) : $self->executor;
 
-		$self->log('run executor : ' . ref $executor);
+        $self->log('run executor : ' . ref $executor);
         my $status = $executor->run($self);
 
-		$self->log('finished testing : ' . $status);
+        $self->log('finished testing : ' . $status);
 
         $self->run_commands($conf, 'after_script');
 
@@ -281,8 +292,10 @@ sub install {
     };
     if ($install) {
         $self->log("[install] $install");
+        my $begin_time = time;
         system($install)
             == 0 or die "Failure in installing: $install";
+        $self->elapsed_time_sec($self->elapsed_time_sec + time - $begin_time);
     }
 }
 
@@ -290,49 +303,53 @@ sub run_commands {
     my ($self, $yml, $phase) = @_;
     for my $cmd (@{$yml->{$phase} || []}) {
         $self->log("[${phase}] $cmd");
+        my $begin_time = time;
         system($cmd)
             == 0 or die "Failure in ${phase}: $cmd";
+        $self->elapsed_time_sec($self->elapsed_time_sec + time - $begin_time);
     }
 }
 
 sub send_to_server {
     my ($self, $status) = @_;
 
-	my $ua = $self->user_agent();
+    my $ua = $self->user_agent();
 
     # flush log file before send it
     $self->logfh->flush();
 
     my $server_url = $self->server_url;
        $server_url =~ s!/$!!g;
-	my $req =
-		POST $server_url . '/api/v1/report/add',
-		Content_Type => 'form-data',
-		Content => [
-			project  => $self->project,
-			branch   => $self->branch,
-			repo     => $self->repository,
-			revision => $self->current_revision,
-			status   => $status,
+    my $req =
+        POST $server_url . '/api/v1/report/add',
+        Content_Type => 'form-data',
+        Content => [
+            project  => $self->project,
+            branch   => $self->branch,
+            repo     => $self->repository,
+            revision => $self->current_revision,
+            status   => $status,
             vc_log   => $self->vc_log,
-			body     => [$self->logfh->filename],
+            body     => [$self->logfh->filename],
             compare_url => $self->compare_url,
-		];
-	my $res = $ua->request($req);
-	$res->is_success or die "Cannot send a report to @{[ $self->server_url ]}/api/v1/report/add:\n" . $res->as_string;
-	my $dat = eval { decode_json($res->decoded_content) } || $res->decoded_content . " : $@";
-	$self->log("report url: $dat->{report}->{url}");
-	my $report_url = $dat->{report}->{url} or die "Cannot get report url";
+            elapsed_time_sec => $self->elapsed_time_sec,
+        ];
+    my $res = $ua->request($req);
+    $res->is_success or die "Cannot send a report to @{[ $self->server_url ]}/api/v1/report/add:\n" . $res->as_string;
+    my $dat = eval { decode_json($res->decoded_content) } || $res->decoded_content . " : $@";
+    $self->log("report url: $dat->{report}->{url}");
+    my $report_url = $dat->{report}->{url} or die "Cannot get report url";
     return ($report_url, $dat->{report}->{last_status});
 }
-
 
 sub tee {
     my ($self, $command) = @_;
     $self->log("command: $command");
     my ($out) = Capture::Tiny::tee_merged {
         ( $EUID, $EGID ) = ( $UID, $GID );
-        system $command
+        my $begin_time = time;
+        system $command;
+        $self->elapsed_time_sec($self->elapsed_time_sec + time - $begin_time);
     };
     $out = Encode::encode("console_in", Encode::decode("console_out", $out));
 
@@ -346,8 +363,8 @@ sub log {
         Time::Piece->new()->strftime('[%Y-%m-%d %H:%M]'),
         '[' . $self->branch . ']', @_ )
       . "\n";
-	print STDOUT $msg unless $self->quiet;
-	print {$self->logfh} $msg;
+    print STDOUT $msg unless $self->quiet;
+    print {$self->logfh} $msg;
 }
 
 
