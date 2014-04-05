@@ -2,7 +2,7 @@ package Ukigumo::Client;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.27';
+our $VERSION = '0.28';
 
 use Carp ();
 use Capture::Tiny;
@@ -449,6 +449,10 @@ This is a arrayref of notifier object. It's normally Ukigumo::Client::Notify::*.
 =item C<compare_url>
 
 URL to compare differences between range of commitments.
+
+=item C<elapsed_time_sec>
+
+Elapsed time as seconds about executing tests.
 
 =back
 
