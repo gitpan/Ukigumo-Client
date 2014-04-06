@@ -2,7 +2,7 @@ package Ukigumo::Client;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.28';
+our $VERSION = '0.29';
 
 use Carp ();
 use Capture::Tiny;
@@ -201,7 +201,7 @@ sub run {
 sub report_timeout {
     my ($self) = @_;
 
-    $self->_reflect_result(STATUS_FAIL);
+    $self->_reflect_result(STATUS_TIMEOUT);
 }
 
 sub _reflect_result {
