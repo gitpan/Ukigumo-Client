@@ -14,7 +14,7 @@ sub default_branch { 'master' }
 
 sub get_revision {
 	my $self = shift;
-	$self->{revision} ||= ( substr( `git rev-parse HEAD`, 0, 10 ) || 'Unknown' );
+	$self->{revision} ||= `git rev-parse HEAD` || 'Unknown';
 }
 
 sub update {
@@ -34,6 +34,7 @@ sub update {
 
 sub get_log {
     my ($self, $rev1, $rev2) = @_;
+
     # -50 means limit.
     `git log --pretty=format:"%h %an: %s" --abbrev-commit --source -@{[ $self->log_limit ]} '$rev1..$rev2'`
 }

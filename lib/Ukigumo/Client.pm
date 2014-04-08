@@ -2,7 +2,7 @@ package Ukigumo::Client;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.29';
+our $VERSION = '0.30';
 
 use Carp ();
 use Capture::Tiny;
@@ -152,19 +152,22 @@ sub run {
 
     {
         mkpath($workdir);
-        chdir($workdir) or die "Cannot chdir(@{[ $workdir ]}): $!";
+        unless (chdir($workdir)) {
+            $self->_reflect_result(STATUS_FAIL);
+            die "Cannot chdir(@{[ $workdir ]}): $!";
+        }
 
         $self->log('run vc : ' . ref $self->vc);
-        my $orig_revision = $self->vc->get_revision();
+        chomp(my $orig_revision = $self->vc->get_revision());
         $self->vc->update($self, $workdir);
         $self->current_revision($self->vc->get_revision());
-        my $current_revision = $self->current_revision;
+        chomp(my $current_revision = $self->current_revision);
 
         if ($self->vc->skip_if_unmodified && $orig_revision eq $current_revision) {
             $self->log('skip testing');
             return;
         }
-        $self->vc_log($self->vc->get_log($orig_revision, $current_revision));
+        $self->vc_log(join '', $self->vc->get_log($orig_revision, $current_revision));
 
         my $conf = $self->load_config();
 
@@ -174,7 +177,7 @@ sub run {
         my $repository_name  = $self->repository_name;
 
         for my $notify (grep { ref $_ eq NOTIFIER_GITHUBSTATUSES } @{$self->notifiers}) {
-            $notify->send($self, '', STATUS_PENDING, '', $self->current_revision, $repository_owner, $repository_name);
+            $notify->send($self, STATUS_PENDING, '', '', $current_revision, $repository_owner, $repository_name);
         }
 
         $self->run_commands($conf, 'before_install');
@@ -228,6 +231,7 @@ sub _load_notifications {
         elsif ($type eq 'github_statuses') {
             $self->_load_notify_modules($conf, $type, NOTIFIER_GITHUBSTATUSES);
         } else {
+            $self->_reflect_result(STATUS_FAIL);
             die "Unknown notification type: $type";
         }
     }
@@ -261,10 +265,12 @@ sub load_config {
         my $y = eval { YAML::Tiny->read('.ukigumo.yml') };
         if (my $e = $@) {
             $self->log("YAML syntax error in .ukigumo.yml: $e");
+            $self->_reflect_result(STATUS_FAIL);
             die ".ukigumo.yml: $e\n";
         }
         unless (defined $y) {
             $self->log("ukigumo.yml does not contain anything");
+            $self->_reflect_result(STATUS_FAIL);
             die ".ukigumo.yml: does not contain anything\n";
         }
         $y ? $y->[0] : undef;
@@ -293,8 +299,12 @@ sub install {
     if ($install) {
         $self->log("[install] $install");
         my $begin_time = time;
-        system($install)
-            == 0 or die "Failure in installing: $install";
+
+        unless (system($install) == 0) {
+            $self->_reflect_result(STATUS_FAIL);
+            die "Failure in installing: $install";
+        }
+
         $self->elapsed_time_sec($self->elapsed_time_sec + time - $begin_time);
     }
 }
@@ -304,8 +314,12 @@ sub run_commands {
     for my $cmd (@{$yml->{$phase} || []}) {
         $self->log("[${phase}] $cmd");
         my $begin_time = time;
-        system($cmd)
-            == 0 or die "Failure in ${phase}: $cmd";
+
+        unless (system($cmd) == 0) {
+            $self->_reflect_result(STATUS_FAIL);
+            die "Failure in ${phase}: $cmd";
+        }
+
         $self->elapsed_time_sec($self->elapsed_time_sec + time - $begin_time);
     }
 }
@@ -327,7 +341,7 @@ sub send_to_server {
             project  => $self->project,
             branch   => $self->branch,
             repo     => $self->repository,
-            revision => $self->current_revision,
+            revision => substr($self->current_revision, 0, 10),
             status   => $status,
             vc_log   => $self->vc_log,
             body     => [$self->logfh->filename],
