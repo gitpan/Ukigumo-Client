@@ -7,11 +7,9 @@ build_requires:
   Test::More: '0.98'
   Test::Requires: '0'
 configure_requires:
-  CPAN::Meta: '0'
-  CPAN::Meta::Prereqs: '0'
-  Module::Build: '0.38'
+  Module::Build::Tiny: '0.035'
 dynamic_config: 0
-generated_by: 'Minilla/v0.14.1, CPAN::Meta::Converter version 2.133380'
+generated_by: 'Minilla/v0.15.0, CPAN::Meta::Converter version 2.133380'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -30,7 +28,7 @@ no_index:
 provides:
   Ukigumo::Client:
     file: lib/Ukigumo/Client.pm
-    version: '0.30'
+    version: '0.31'
   Ukigumo::Client::Executor::Auto:
     file: lib/Ukigumo/Client/Executor/Auto.pm
   Ukigumo::Client::Executor::Callback:
@@ -83,7 +81,7 @@ resources:
   bugtracker: https://github.com/ukigumo/Ukigumo-Client/issues
   homepage: https://github.com/ukigumo/Ukigumo-Client
   repository: git://github.com/ukigumo/Ukigumo-Client.git
-version: '0.30'
+version: '0.31'
 x_authority: cpan:TOKUHIROM
 x_contributors:
   - 'xaicron <xaicron@gmail.com>'

@@ -2,7 +2,7 @@ package Ukigumo::Client;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.30';
+our $VERSION = '0.31';
 
 use Carp ();
 use Capture::Tiny;
@@ -110,12 +110,22 @@ has 'repository_name' => (
 has 'vc_log' => (
     is      => 'rw',
     isa     => 'Str',
-    default => '',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        chomp(my $orig_revision    = $self->vc->get_revision());
+        chomp(my $current_revision = $self->current_revision());
+        join '', $self->vc->get_log($orig_revision, $current_revision);
+    },
 );
 has 'current_revision' => (
     is      => 'rw',
     isa     => 'Str',
-    default => '',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        $self->vc->get_revision();
+    },
 );
 
 has 'elapsed_time_sec' => (
@@ -160,14 +170,12 @@ sub run {
         $self->log('run vc : ' . ref $self->vc);
         chomp(my $orig_revision = $self->vc->get_revision());
         $self->vc->update($self, $workdir);
-        $self->current_revision($self->vc->get_revision());
         chomp(my $current_revision = $self->current_revision);
 
         if ($self->vc->skip_if_unmodified && $orig_revision eq $current_revision) {
             $self->log('skip testing');
             return;
         }
-        $self->vc_log(join '', $self->vc->get_log($orig_revision, $current_revision));
 
         my $conf = $self->load_config();
 
@@ -202,15 +210,16 @@ sub run {
 }
 
 sub report_timeout {
-    my ($self) = @_;
+    my ($self, $log_filename) = @_;
 
-    $self->_reflect_result(STATUS_TIMEOUT);
+    $self->elapsed_time_sec(undef);
+    $self->_reflect_result(STATUS_TIMEOUT, $log_filename);
 }
 
 sub _reflect_result {
-    my ($self, $status) = @_;
+    my ($self, $status, $log_filename) = @_;
 
-    my ($report_url, $last_status) = $self->send_to_server($status);
+    my ($report_url, $last_status) = $self->send_to_server($status, $log_filename);
 
     $self->log("sending notification: @{[ $self->branch ]}, $status");
 
@@ -325,7 +334,7 @@ sub run_commands {
 }
 
 sub send_to_server {
-    my ($self, $status) = @_;
+    my ($self, $status, $log_filename) = @_;
 
     my $ua = $self->user_agent();
 
@@ -344,7 +353,7 @@ sub send_to_server {
             revision => substr($self->current_revision, 0, 10),
             status   => $status,
             vc_log   => $self->vc_log,
-            body     => [$self->logfh->filename],
+            body     => [$log_filename || $self->logfh->filename],
             compare_url => $self->compare_url,
             elapsed_time_sec => $self->elapsed_time_sec,
         ];
@@ -508,7 +517,7 @@ Tokuhiro Matsuno E<lt>tokuhirom AAJKLFJEF@ GMAIL COME<gt>
 
 =head1 SEE ALSO
 
-L<Ukigumo::Server>, L<Ukigumo:https://github.com/ukigumo/>
+L<Ukigumo::Server>, L<Ukigumo|https://github.com/ukigumo/>
 
 =head1 LICENSE
 
