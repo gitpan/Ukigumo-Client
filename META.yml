@@ -29,7 +29,7 @@ no_index:
 provides:
   Ukigumo::Client:
     file: lib/Ukigumo/Client.pm
-    version: '0.32'
+    version: '0.33'
   Ukigumo::Client::CommandRunner:
     file: lib/Ukigumo/Client/CommandRunner.pm
   Ukigumo::Client::Executor::Auto:
@@ -90,7 +90,7 @@ resources:
   bugtracker: https://github.com/ukigumo/Ukigumo-Client/issues
   homepage: https://github.com/ukigumo/Ukigumo-Client
   repository: git://github.com/ukigumo/Ukigumo-Client.git
-version: '0.32'
+version: '0.33'
 x_authority: cpan:TOKUHIROM
 x_contributors:
   - 'xaicron <xaicron@gmail.com>'

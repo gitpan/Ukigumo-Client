@@ -80,7 +80,7 @@
    "provides" : {
       "Ukigumo::Client" : {
          "file" : "lib/Ukigumo/Client.pm",
-         "version" : "0.32"
+         "version" : "0.33"
       },
       "Ukigumo::Client::CommandRunner" : {
          "file" : "lib/Ukigumo/Client/CommandRunner.pm"
@@ -145,7 +145,7 @@
          "web" : "https://github.com/ukigumo/Ukigumo-Client"
       }
    },
-   "version" : "0.32",
+   "version" : "0.33",
    "x_authority" : "cpan:TOKUHIROM",
    "x_contributors" : [
       "xaicron <xaicron@gmail.com>",

@@ -23,6 +23,7 @@ lib/Ukigumo/Client/VC/Callback.pm
 lib/Ukigumo/Client/VC/Git.pm
 lib/Ukigumo/Client/VC/SVN.pm
 lib/Ukigumo/Client/YamlConfig.pm
+lib/Ukigumo/Client/ukigumo_yml.pod
 minil.toml
 script/ukigumo-client.pl
 t/00_compile.t
