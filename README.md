@@ -92,15 +92,23 @@ Ukigumo::Client is client library for Ukigumo.
 
     Send a notification to the sever.
 
+- reflect\_result($status: Int)
+
+    Send a notification to the server and notify via registered notifier.
+
 - $client->tee($command: Str)
 
     This method runs `$command` and tee the output of the STDOUT/STDERR to the `logfh`.
 
     _Return_: exit code by the `$command`.
 
-- $client->log($message)
+- $client->logger->infof($message)
 
-    Print `$message` and write to the `logfh`.
+    Print `$message` as INFO and write to the `logfh`.
+
+- $client->logger->warnf($message)
+
+    Print `$message` as WARN and write to the `logfh`.
 
 - $client->report\_timeout()
 

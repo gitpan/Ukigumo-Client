@@ -2,7 +2,7 @@ package Ukigumo::Client;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.31';
+our $VERSION = '0.32';
 
 use Carp ();
 use Capture::Tiny;
@@ -11,19 +11,20 @@ use Encode;
 use File::Spec;
 use File::Path qw(mkpath);
 use LWP::UserAgent;
-use Time::Piece;
 use English '-no_match_vars';
-use File::Basename qw(dirname);
 use HTTP::Request::Common qw(POST);
 use JSON qw(decode_json);
 use File::Temp;
 use File::HomeDir;
-use YAML::Tiny;
 use Cwd;
 use Scope::Guard;
 
 use Ukigumo::Constants;
+use Ukigumo::Client::CommandRunner;
 use Ukigumo::Client::Executor::Command;
+use Ukigumo::Client::Logger;
+use Ukigumo::Client::YamlConfig;
+use Ukigumo::Logger;
 
 use Mouse;
 
@@ -38,7 +39,7 @@ has 'workdir' => (
     },
 );
 has 'project' => (
-    is => 'ro',
+    is => 'rw',
     isa => 'Str',
     default => sub {
         my $self = shift;
@@ -107,19 +108,29 @@ has 'repository_name' => (
     default => '',
 );
 
-has 'vc_log' => (
-    is      => 'rw',
+# for VC log
+has vc_log => (
+    is      => 'ro',
     isa     => 'Str',
     lazy    => 1,
     default => sub {
         my $self = shift;
-        chomp(my $orig_revision    = $self->vc->get_revision());
-        chomp(my $current_revision = $self->current_revision());
+        chomp(my $orig_revision    = $self->orig_revision);
+        chomp(my $current_revision = $self->current_revision);
         join '', $self->vc->get_log($orig_revision, $current_revision);
     },
 );
-has 'current_revision' => (
-    is      => 'rw',
+has current_revision => (
+    is      => 'ro',
+    isa     => 'Str',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        $self->vc->get_revision();
+    },
+);
+has orig_revision => (
+    is      => 'ro',
     isa     => 'Str',
     lazy    => 1,
     default => sub {
@@ -133,6 +144,22 @@ has 'elapsed_time_sec' => (
     isa     => 'Int',
     default => 0,
 );
+
+has 'logger' => (
+    is      => 'ro',
+    isa     => 'Ukigumo::Client::Logger',
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        Ukigumo::Client::Logger->new(
+            logfh  => $self->logfh,
+            branch => $self->branch,
+            quiet  => $self->quiet,
+        );
+    },
+);
+
+no Mouse;
 
 sub normalize_path {
     my $path = shift;
@@ -156,30 +183,36 @@ sub run {
 
     my $workdir = File::Spec->catdir( $self->workdir, normalize_path($self->project), normalize_path($self->branch) );
 
-    $self->log("ukigumo-client $VERSION");
-    $self->log("start testing : " . $self->vc->description());
-    $self->log("working directory : " . $workdir);
+    $self->logger->infof("ukigumo-client $VERSION");
+    $self->logger->infof("start testing : " . $self->vc->description());
+    $self->logger->infof("working directory : " . $workdir);
 
     {
         mkpath($workdir);
         unless (chdir($workdir)) {
-            $self->_reflect_result(STATUS_FAIL);
+            $self->reflect_result(STATUS_FAIL);
             die "Cannot chdir(@{[ $workdir ]}): $!";
         }
 
-        $self->log('run vc : ' . ref $self->vc);
-        chomp(my $orig_revision = $self->vc->get_revision());
+        $self->logger->infof('run vc : ' . ref $self->vc);
+        chomp(my $orig_revision = $self->orig_revision);
+
         $self->vc->update($self, $workdir);
         chomp(my $current_revision = $self->current_revision);
 
         if ($self->vc->skip_if_unmodified && $orig_revision eq $current_revision) {
-            $self->log('skip testing');
+            $self->logger->infof('skip testing');
             return;
         }
 
-        my $conf = $self->load_config();
+        my $conf = Ukigumo::Client::YamlConfig->new(c => $self);
 
-        $self->_load_notifications($conf);
+        local %ENV = %ENV;
+        $conf->apply_environment_variables;
+
+        $self->project($conf->project_name || $self->project);
+
+        $self->push_notifier(@{$conf->notifiers});
 
         my $repository_owner = $self->repository_owner;
         my $repository_name  = $self->repository_name;
@@ -188,148 +221,46 @@ sub run {
             $notify->send($self, STATUS_PENDING, '', '', $current_revision, $repository_owner, $repository_name);
         }
 
-        $self->run_commands($conf, 'before_install');
+        my $command_runner = Ukigumo::Client::CommandRunner->new(c => $self, config => $conf);
 
-        $self->install($conf);
+        $command_runner->run('before_install');
+        $command_runner->run('install');
+        $command_runner->run('before_script');
 
-        $self->run_commands($conf, 'before_script');
+        my $executor = defined($conf->script) ? Ukigumo::Client::Executor::Command->new(command => $conf->script)
+                                              : $self->executor;
 
-        my $executor = defined($conf->{script}) ? Ukigumo::Client::Executor::Command->new(command => $conf->{script}) : $self->executor;
-
-        $self->log('run executor : ' . ref $executor);
+        $self->logger->infof('run executor : ' . ref $executor);
         my $status = $executor->run($self);
+        $self->logger->infof('finished testing : ' . $status);
 
-        $self->log('finished testing : ' . $status);
+        $command_runner->run('after_script');
 
-        $self->run_commands($conf, 'after_script');
-
-        $self->_reflect_result($status);
+        $self->reflect_result($status);
     }
 
-    $self->log("end testing");
+    $self->logger->infof("end testing");
 }
 
 sub report_timeout {
     my ($self, $log_filename) = @_;
 
     $self->elapsed_time_sec(undef);
-    $self->_reflect_result(STATUS_TIMEOUT, $log_filename);
+    $self->reflect_result(STATUS_TIMEOUT, $log_filename);
 }
 
-sub _reflect_result {
+sub reflect_result {
     my ($self, $status, $log_filename) = @_;
 
     my ($report_url, $last_status) = $self->send_to_server($status, $log_filename);
 
-    $self->log("sending notification: @{[ $self->branch ]}, $status");
+    $self->logger->infof("sending notification: @{[ $self->branch ]}, $status");
 
     my $repository_owner = $self->repository_owner;
     my $repository_name  = $self->repository_name;
 
     for my $notify (@{$self->notifiers}) {
         $notify->send($self, $status, $last_status, $report_url, $self->current_revision, $repository_owner, $repository_name);
-    }
-}
-
-sub _load_notifications {
-    my ($self, $conf) = @_;
-    for my $type (keys %{$conf->{notifications}}) {
-        if ($type eq 'ikachan') {
-            $self->_load_notify_modules($conf, $type, NOTIFIER_IKACHAN);
-        }
-        elsif ($type eq 'github_statuses') {
-            $self->_load_notify_modules($conf, $type, NOTIFIER_GITHUBSTATUSES);
-        } else {
-            $self->_reflect_result(STATUS_FAIL);
-            die "Unknown notification type: $type";
-        }
-    }
-}
-
-sub _load_notify_modules {
-    my ($self, $conf, $type, $module_name) = @_;
-
-    require $self->_convert_module_name_to_module_path($module_name);
-
-    my $c = $conf->{notifications}->{$type};
-       $c = [$c] unless ref $c eq 'ARRAY';
-
-    for my $args (@$c) {
-        my $notifier = $module_name->new($args);
-        push @{$self->{notifiers}}, $notifier;
-    }
-}
-
-sub _convert_module_name_to_module_path {
-    my ($self, $module_name) = @_;
-
-    $module_name =~ s!::!/!g;
-    return $module_name . '.pm';
-}
-
-sub load_config {
-    my $self = shift;
-
-    if ( -f '.ukigumo.yml' ) {
-        my $y = eval { YAML::Tiny->read('.ukigumo.yml') };
-        if (my $e = $@) {
-            $self->log("YAML syntax error in .ukigumo.yml: $e");
-            $self->_reflect_result(STATUS_FAIL);
-            die ".ukigumo.yml: $e\n";
-        }
-        unless (defined $y) {
-            $self->log("ukigumo.yml does not contain anything");
-            $self->_reflect_result(STATUS_FAIL);
-            die ".ukigumo.yml: does not contain anything\n";
-        }
-        $y ? $y->[0] : undef;
-    }
-    else {
-        $self->log("There is no .ukigumo.yml");
-        undef;
-    }
-}
-
-# Install deps
-sub install {
-    my ($self, $conf) = @_;
-
-    my $install = do {
-        if ($conf->{install}) {
-            $conf->{install};
-        } else {
-            if (-f 'Makefile.PL' || -f 'cpanfile' || -f 'Build.PL') {
-                'cpanm --notest --installdeps .';
-            } else {
-                undef;
-            }
-        }
-    };
-    if ($install) {
-        $self->log("[install] $install");
-        my $begin_time = time;
-
-        unless (system($install) == 0) {
-            $self->_reflect_result(STATUS_FAIL);
-            die "Failure in installing: $install";
-        }
-
-        $self->elapsed_time_sec($self->elapsed_time_sec + time - $begin_time);
-    }
-}
-
-sub run_commands {
-    my ($self, $yml, $phase) = @_;
-    for my $cmd (@{$yml->{$phase} || []}) {
-        $self->log("[${phase}] $cmd");
-        my $begin_time = time;
-
-        unless (system($cmd) == 0) {
-            $self->_reflect_result(STATUS_FAIL);
-            die "Failure in ${phase}: $cmd";
-        }
-
-        $self->elapsed_time_sec($self->elapsed_time_sec + time - $begin_time);
     }
 }
 
@@ -360,14 +291,14 @@ sub send_to_server {
     my $res = $ua->request($req);
     $res->is_success or die "Cannot send a report to @{[ $self->server_url ]}/api/v1/report/add:\n" . $res->as_string;
     my $dat = eval { decode_json($res->decoded_content) } || $res->decoded_content . " : $@";
-    $self->log("report url: $dat->{report}->{url}");
+    $self->logger->infof("report url: $dat->{report}->{url}");
     my $report_url = $dat->{report}->{url} or die "Cannot get report url";
     return ($report_url, $dat->{report}->{last_status});
 }
 
 sub tee {
     my ($self, $command) = @_;
-    $self->log("command: $command");
+    $self->logger->infof("command: $command");
     my ($out) = Capture::Tiny::tee_merged {
         ( $EUID, $EGID ) = ( $UID, $GID );
         my $begin_time = time;
@@ -380,21 +311,12 @@ sub tee {
     return $?;
 }
 
-sub log {
-    my $self = shift;
-    my $msg = join( ' ',
-        Time::Piece->new()->strftime('[%Y-%m-%d %H:%M]'),
-        '[' . $self->branch . ']', @_ )
-      . "\n";
-    print STDOUT $msg unless $self->quiet;
-    print {$self->logfh} $msg;
-}
-
-
 1;
 __END__
 
 =encoding utf8
+
+=for stopwords infof warnf
 
 =head1 NAME
 
@@ -495,15 +417,23 @@ Run a test context.
 
 Send a notification to the sever.
 
+=item reflect_result($status: Int)
+
+Send a notification to the server and notify via registered notifier.
+
 =item $client->tee($command: Str)
 
 This method runs C<< $command >> and tee the output of the STDOUT/STDERR to the C<logfh>.
 
 I<Return>: exit code by the C<< $command >>.
 
-=item $client->log($message)
+=item $client->logger->infof($message)
 
-Print C<< $message >> and write to the C<logfh>.
+Print C<< $message >> as INFO and write to the C<logfh>.
+
+=item $client->logger->warnf($message)
+
+Print C<< $message >> as WARN and write to the C<logfh>.
 
 =item $client->report_timeout()
 

@@ -43,7 +43,7 @@ sub send {
     my $res = $ua->post($destination, Content => $payload);
 
     if ( $res->is_success ) {
-        $c->log("Set commit status to $current_revision");
+        $c->logger->infof("Set commit status to $current_revision");
     }
     else {
         warn "Cannot set commit status to GitHub (NOTE: please check your OAuth permission)";
@@ -109,7 +109,7 @@ Access token of GitHub OAuth. It must granted C<repo:status>.
 Example of C<.ukigumo.yml>;
 
     notifications:
-      guthub_statuses:
+      github_statuses:
         - api_endpoint: https://api.github.com
           access_token: __ACCESS_TOKEN__
 
