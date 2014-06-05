@@ -23,8 +23,8 @@ lib/Ukigumo/Client/VC/Callback.pm
 lib/Ukigumo/Client/VC/Git.pm
 lib/Ukigumo/Client/VC/SVN.pm
 lib/Ukigumo/Client/YamlConfig.pm
-lib/Ukigumo/Client/ukigumo_yml.pod
 minil.toml
+pod/ukigumo.yml.pod
 script/ukigumo-client.pl
 t/00_compile.t
 t/09_skip_if_unmodified.t

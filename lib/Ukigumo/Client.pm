@@ -2,7 +2,7 @@ package Ukigumo::Client;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.33';
+our $VERSION = '0.34';
 
 use Carp ();
 use Capture::Tiny;
@@ -445,7 +445,7 @@ This method always sends FAIL report to server and notifies to each notifiers.
 
 If C<.ukigumo.yml> file is on the project root, L<Ukigumo::Client> loads that file and applies the settings that are written in it.
 
-Please see also L<Ukigumo::Client::ukigumo_yml>.
+Please see also L<ukigumo.yml.pod>.
 
 =head1 AUTHOR
 
