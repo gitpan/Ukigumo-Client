@@ -2,7 +2,7 @@ package Ukigumo::Client;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.34';
+our $VERSION = '0.35';
 
 use Carp ();
 use Capture::Tiny;
@@ -24,6 +24,7 @@ use Ukigumo::Client::CommandRunner;
 use Ukigumo::Client::Executor::Command;
 use Ukigumo::Client::Logger;
 use Ukigumo::Client::YamlConfig;
+use Ukigumo::Helper qw(normalize_path);
 use Ukigumo::Logger;
 
 use Mouse;
@@ -160,12 +161,6 @@ has 'logger' => (
 );
 
 no Mouse;
-
-sub normalize_path {
-    my $path = shift;
-    $path =~ s/[^a-zA-Z0-9-_]/_/g;
-    $path;
-}
 
 sub push_notifier {
     my $self = shift;
