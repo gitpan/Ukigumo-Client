@@ -2,7 +2,7 @@ package Ukigumo::Client;
 use strict;
 use warnings;
 use 5.008001;
-our $VERSION = '0.35';
+our $VERSION = '0.36';
 
 use Carp ();
 use Capture::Tiny;
@@ -142,7 +142,7 @@ has orig_revision => (
 
 has 'elapsed_time_sec' => (
     is      => 'rw',
-    isa     => 'Int',
+    isa     => 'Maybe[Int]',
     default => 0,
 );
 
@@ -262,13 +262,16 @@ sub reflect_result {
 sub send_to_server {
     my ($self, $status, $log_filename) = @_;
 
+    my $server_url = $self->server_url;
+       $server_url =~ s!/$!!g;
+
+    $self->logger->infof("sending result to server at $server_url (status: $status)");
+
     my $ua = $self->user_agent();
 
     # flush log file before send it
     $self->logfh->flush();
 
-    my $server_url = $self->server_url;
-       $server_url =~ s!/$!!g;
     my $req =
         POST $server_url . '/api/v1/report/add',
         Content_Type => 'form-data',
